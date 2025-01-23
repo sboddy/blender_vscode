@@ -80,9 +80,6 @@ async function COMMAND_start() {
     if (blenderFolder === null) {
         await BlenderExecutable.LaunchAny();
     }
-    else {
-        await BlenderExecutable.LaunchDebug(blenderFolder);
-    }
 }
 
 async function COMMAND_stop() {

@@ -10,7 +10,6 @@ import { getServerPort } from './communication';
 import { letUserPickItem, PickItem } from './select_utils';
 import { getConfig, cancel, runTask, getAnyWorkspaceFolder } from './utils';
 import { AddonWorkspaceFolder } from './addon_folder';
-import { BlenderWorkspaceFolder } from './blender_folder';
 import { outputChannel } from './extension';
 import { getBlenderWindows } from './blender_executable_windows';
 import { deduplicateSameHardLinks } from './blender_executable_linux';
@@ -49,10 +48,6 @@ export class BlenderExecutable {
         await (await this.GetAny()).launch();
     }
 
-    public static async LaunchDebug(folder: BlenderWorkspaceFolder) {
-        await (await this.GetDebug()).launchDebug(folder);
-    }
-
     get path() {
         return this.data.path;
     }
@@ -68,22 +63,6 @@ export class BlenderExecutable {
         outputChannel.appendLine('With ENV Vars: ' + JSON.stringify(execution.options?.env, undefined, 2))
 
         await runTask('blender', execution);
-    }
-
-    public async launchDebug(folder: BlenderWorkspaceFolder) {
-        const env = await getBlenderLaunchEnv();
-        let configuration = {
-            name: 'Debug Blender',
-            type: 'cppdbg',
-            request: 'launch',
-            program: this.data.path,
-            args: ['--debug'].concat(getBlenderLaunchArgs()),
-            environment: Object.entries(env).map(([key, value]) => { return {name: key, value}; }),
-            stopAtEntry: false,
-            MIMode: 'gdb',
-            cwd: folder.uri.fsPath,
-        };
-        vscode.debug.startDebugging(folder.folder, configuration);
     }
 
     public async launchWithCustomArgs(taskName: string, args: string[]) {
